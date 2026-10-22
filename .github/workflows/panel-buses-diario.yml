@@ -1,0 +1,69 @@
+name: Panel de buses - corrida diaria
+
+# Corre despues del cron de QS (reporte-diario.yml, ventana 08-11 Santiago) para
+# que los dos CSV que lee cargar.py ya esten frescos en S3 cuando esto arranca.
+# Mismo patron de robustez que QS: GitHub atrasa y a veces saltea los cron, asi
+# que disparamos en VARIOS horarios de respaldo (minuto off-peak :37, distinto
+# al :17 de QS para no competir por el mismo minuto congestionado) y el guard
+# acepta una VENTANA ancha, no una hora exacta.
+
+on:
+  schedule:
+    - cron: "37 12 * * *"   # 09:37 Santiago verano
+    - cron: "37 13 * * *"   # 10:37 verano / 09:37 invierno
+    - cron: "37 14 * * *"   # 11:37 verano / 10:37 invierno
+    - cron: "37 15 * * *"   # 12:37 verano / 11:37 invierno (respaldo real)
+  workflow_dispatch: {}
+
+concurrency:
+  group: panel-buses-diario
+  cancel-in-progress: false
+
+jobs:
+  panel-buses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: America/Santiago
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
+      S3_BUCKET: exportacion-datos-connect
+      S3_PREFIX: quicksight/conectividad
+
+    steps:
+      - name: Guard horario (ventana 09-12 de Santiago)
+        if: github.event_name == 'schedule'
+        run: |
+          H=$(date +%H)
+          echo "Hora actual en Santiago: ${H}:00"
+          if [ "$H" != "09" ] && [ "$H" != "10" ] && [ "$H" != "11" ] && [ "$H" != "12" ]; then
+            echo "Fuera de la ventana 09-12 en Santiago (es ${H}). Esta corrida no hace nada."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Checkout
+        if: env.SKIP != '1'
+        uses: actions/checkout@v4
+
+      - name: Python 3.13
+        if: env.SKIP != '1'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Instalar dependencias
+        if: env.SKIP != '1'
+        run: pip install -r requirements.txt
+
+      - name: Metricas por bus -> Neon
+        if: env.SKIP != '1'
+        continue-on-error: true
+        run: python metricas_bus.py hoy
+
+      - name: Buses en sucursal -> Neon
+        if: env.SKIP != '1'
+        continue-on-error: true
+        run: python buses_en_sucursal.py

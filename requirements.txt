@@ -1,0 +1,12 @@
+# Dependencias de la corrida diaria (metricas_bus.py + buses_en_sucursal.py).
+# Python 3.13, versiones calcadas del requirements.txt de QS (mismo CSV, mismo
+# comportamiento de pandas al leerlo). Para rutas/ (py -3.14) ver rutas/requirements.txt.
+pandas==3.0.1
+numpy==2.4.2
+boto3==1.42.54
+botocore==1.42.54
+python-dotenv==1.2.1
+psycopg[binary]==3.2.3
+openpyxl==3.1.5
+XlsxWriter==3.2.9
+pytz==2025.2

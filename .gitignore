@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Entornos y secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# Salidas locales
+*.xlsx
+!inputs/talleres.xlsx
+*.log
+
+# Datos pesados que pueda necesitar rutas/ si se corre localmente
+data/

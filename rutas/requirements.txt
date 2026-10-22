@@ -1,0 +1,5 @@
+# Dependencias de export_bus_viajes_neon.py. Runtime py -3.14 (igual que
+# flespi-routes/rendimientos.kf, de donde sale este script).
+polars
+psycopg[binary]==3.2.3
+python-dotenv==1.2.1
