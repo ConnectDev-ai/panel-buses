@@ -16,3 +16,10 @@ __pycache__/
 
 # Datos pesados que pueda necesitar rutas/ si se corre localmente
 data/
+
+# Preview local (generado, trae datos reales de Neon inlineados)
+preview/panel_buses_preview.html
+
+# Assets de marca (PDF + logos), referencia local, no pertenecen al historial
+# de un repo que es solo backend de datos.
+Desing System/

@@ -1,0 +1,25 @@
+/* Connect — the 18 named text styles, ready to apply as classes.
+   Source: UI-KIT - Connect → Typography (Headings / Sub / Body / Captions / Actions). */
+.cx-title-hero{font-family:var(--font-primary);font-weight:700;font-size:64px;line-height:1.2;letter-spacing:-0.035em}
+.cx-h1{font-family:var(--font-primary);font-weight:700;font-size:40px;line-height:1.2;letter-spacing:-0.02em}
+.cx-h2{font-family:var(--font-primary);font-weight:700;font-size:32px;line-height:1.2;letter-spacing:-0.01em}
+.cx-h3{font-family:var(--font-primary);font-weight:700;font-size:28px;line-height:1.2;letter-spacing:0}
+.cx-h4{font-family:var(--font-primary);font-weight:700;font-size:20px;line-height:1.2;letter-spacing:0}
+
+.cx-subtitle{font-family:var(--font-primary);font-weight:500;font-size:32px;line-height:1.2;letter-spacing:-0.02em}
+.cx-subheading{font-family:var(--font-primary);font-weight:500;font-size:28px;line-height:1.2;letter-spacing:-0.02em}
+
+.cx-body{font-family:var(--font-primary);font-weight:400;font-size:14px;line-height:1.4;letter-spacing:0}
+.cx-body-strong{font-family:var(--font-primary);font-weight:600;font-size:14px;line-height:1.4}
+.cx-body-emphasis{font-family:var(--font-primary);font-weight:500;font-style:italic;font-size:14px;line-height:1.4}
+.cx-body-link{font-family:var(--font-primary);font-weight:400;font-size:14px;line-height:1.4;color:var(--text-link);text-decoration:underline}
+.cx-body-small{font-family:var(--font-primary);font-weight:400;font-size:12px;line-height:1.4}
+.cx-body-small-strong{font-family:var(--font-primary);font-weight:600;font-size:12px;line-height:1.4}
+
+.cx-caption{font-family:var(--font-mono);font-weight:600;font-size:12px;line-height:1.4;letter-spacing:0.08em;text-transform:uppercase}
+.cx-caption-small{font-family:var(--font-mono);font-weight:600;font-size:10px;line-height:1.4;letter-spacing:0.12em;text-transform:uppercase}
+
+.cx-button-large{font-family:var(--font-primary);font-weight:700;font-size:14px;line-height:1.4;letter-spacing:0.04em}
+.cx-button-small{font-family:var(--font-primary);font-weight:600;font-size:12px;line-height:1.4;letter-spacing:0.06em}
+.cx-link{font-family:var(--font-primary);font-weight:500;font-size:14px;line-height:1.4;letter-spacing:0.06em}
+.cx-link-small{font-family:var(--font-primary);font-weight:500;font-size:12px;line-height:1.4;letter-spacing:0.06em}

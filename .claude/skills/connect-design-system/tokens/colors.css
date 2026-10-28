@@ -1,0 +1,204 @@
+/* Connect — colour tokens (light / default theme).
+   Every value transcribed from "Design System - Connect.fig"
+   → UI-KIT - Connect → Color -> Basics / Color -> Palette Light. */
+:root{
+  /* ── El espectro Connect — base colours ───────────────────────── */
+  --connect-ai:#5322B5;
+  --connect-navy:#0E1323;
+  --connect-gray:#6B7280;
+  --connect-mist:#F3F4F6;
+  --connect-white:#FFFFFF;
+  --connect-purple:#8E3CD9;
+  --connect-safety:#FE931A;
+  --connect-blue:#2563EB;
+  --connect-fleet:#0EA78C;
+  --connect-care:#0E9AA7;
+  --connect-cyan:#00B4DB;
+  --connect-violeta:#6A1B9A;
+
+  /* ── Neutral ramp (50 = Blanco) ───────────────────────────────── */
+  --neutral-50:#FFFFFF;
+  --neutral-100:#F6F8FC;
+  --neutral-200:#F1F4F9;
+  --neutral-300:#E2E8F0;
+  --neutral-400:#CBD4E1;
+  --neutral-500:#94A3B8;
+  --neutral-600:#64748B;
+  --neutral-700:#475569;
+  --neutral-800:#27364B;
+  --neutral-900:#0E1323;
+
+  /* ── Primary — Cian ───────────────────────────────────────────── */
+  --cyan-50:#F4FDFF;
+  --cyan-100:#DBF9FF;
+  --cyan-200:#A8F0FF;
+  --cyan-300:#75E6FF;
+  --cyan-400:#42DDFF;
+  --cyan-500:#0FD4FF;
+  --cyan-600:#00B4DB;
+  --cyan-700:#008AA8;
+  --cyan-800:#006075;
+  --cyan-900:#003642;
+  --cyan-main:var(--cyan-600);
+
+  /* ── Primary — Azul ───────────────────────────────────────────── */
+  --blue-50:#F7F9FE;
+  --blue-100:#E0E9FC;
+  --blue-200:#B1C7F8;
+  --blue-300:#82A6F4;
+  --blue-400:#5484EF;
+  --blue-500:#2563EB;
+  --blue-600:#134CCA;
+  --blue-700:#0E3B9C;
+  --blue-800:#0A296D;
+  --blue-900:#06173E;
+  --blue-main:var(--blue-500);
+
+  /* ── Primary — Púrpura ────────────────────────────────────────── */
+  --purple-50:#FDFCFE;
+  --purple-100:#F1E7FA;
+  --purple-200:#D8BCF2;
+  --purple-300:#BF91EA;
+  --purple-400:#A767E1;
+  --purple-500:#8E3CD9;
+  --purple-600:#7425BD;
+  --purple-700:#5A1D92;
+  --purple-800:#401468;
+  --purple-900:#260C3D;
+  --purple-main:var(--purple-500);
+
+  /* ── Primary — Violeta ────────────────────────────────────────── */
+  --violeta-50:#EBD6F8;
+  --violeta-100:#E0C0F4;
+  --violeta-200:#CB95EC;
+  --violeta-300:#B669E5;
+  --violeta-400:#A13EDD;
+  --violeta-500:#8823C5;
+  --violeta-600:#6A1B9A;
+  --violeta-700:#4C136F;
+  --violeta-800:#2E0C43;
+  --violeta-900:#100418;
+  --violeta-main:var(--violeta-600);
+
+  /* ── Modules — Safety ─────────────────────────────────────────── */
+  --safety-50:#FFFFFF;
+  --safety-100:#FFF3E5;
+  --safety-200:#FFDBB2;
+  --safety-300:#FEC380;
+  --safety-400:#FEAB4D;
+  --safety-500:#FE931A;
+  --safety-600:#E47901;
+  --safety-700:#B15E01;
+  --safety-800:#7E4301;
+  --safety-900:#4C2800;
+  --safety-main:var(--safety-500);
+
+  /* ── Modules — Fleet ──────────────────────────────────────────── */
+  --fleet-50:#D2FBF4;
+  --fleet-100:#BBF9EE;
+  --fleet-200:#8CF5E3;
+  --fleet-300:#5DF1D7;
+  --fleet-400:#2EEDCC;
+  --fleet-500:#12D6B3;
+  --fleet-600:#0EA78C;
+  --fleet-700:#0A7865;
+  --fleet-800:#06493D;
+  --fleet-900:#021A16;
+  --fleet-main:var(--fleet-600);
+
+  /* ── Modules — Care ───────────────────────────────────────────── */
+  --care-50:#D2F8FB;
+  --care-100:#BBF4F9;
+  --care-200:#8CECF5;
+  --care-300:#5DE5F1;
+  --care-400:#2EDDED;
+  --care-500:#12C5D6;
+  --care-600:#0E9AA7;
+  --care-700:#0A6F78;
+  --care-800:#064349;
+  --care-900:#02181A;
+  --care-main:var(--care-600);
+
+  /* ── Modules — AI ─────────────────────────────────────────────── */
+  --ai-50:#F6F3FD;
+  --ai-100:#E6DDF9;
+  --ai-200:#C7B2F1;
+  --ai-300:#A887E9;
+  --ai-400:#895DE0;
+  --ai-500:#6932D8;
+  --ai-600:#5322B5;
+  --ai-700:#3F1A8A;
+  --ai-800:#2C125F;
+  --ai-900:#180A34;
+  --ai-main:var(--ai-600);
+
+  /* ── Semantic — Error (400 = main, iconos + texto) ────────────── */
+  --error-100:#FFEBEB;
+  --error-200:#FC9595;
+  --error-300:#D83232;
+  --error-400:#B01212;
+  --error-500:#8C0000;
+  --error-600:#660000;
+  --error-main:var(--error-400);
+
+  /* ── Semantic — Warning (400 = main, gráficos + fondos) ───────── */
+  --warning-100:#FFF5D5;
+  --warning-200:#FFDE81;
+  --warning-300:#EFB008;
+  --warning-400:#976400;
+  --warning-500:#724B00;
+  --warning-600:#4D2900;
+  --warning-main:var(--warning-400);
+
+  /* ── Semantic — Info (400 = main, textos + links) ─────────────── */
+  --info-100:#D3E1FE;
+  --info-200:#7EA5F8;
+  --info-300:#4D82F3;
+  --info-400:#2563EB;
+  --info-500:#0037B3;
+  --info-600:#002987;
+  --info-main:var(--info-400);
+
+  /* ── Semantic — Success (400 = main) ──────────────────────────── */
+  --success-100:#E8FCF1;
+  --success-200:#A5E1BF;
+  --success-300:#419E6A;
+  --success-400:#00632B;
+  --success-500:#00401C;
+  --success-600:#002611;
+  --success-main:var(--success-400);
+
+  /* ── Semantic aliases ─────────────────────────────────────────── */
+  --surface-page:var(--neutral-100);
+  --surface-card:var(--neutral-50);
+  --surface-sunken:var(--neutral-200);
+  --surface-inverse:var(--neutral-900);
+  --border-subtle:var(--neutral-300);
+  --border-strong:var(--neutral-400);
+  --border-focus:var(--cyan-600);
+  --text-title:var(--neutral-900);
+  --text-body:var(--neutral-800);
+  --text-intermediate:var(--neutral-700);
+  --text-secondary:var(--neutral-600);
+  --text-placeholder:var(--neutral-500);
+  --text-inverse:var(--neutral-50);
+  --text-link:var(--info-400);
+  --icon-default:var(--neutral-900);
+  --icon-muted:var(--connect-gray);
+  --icon-inactive:var(--neutral-500);
+
+  /* Documentation chrome used by the source spec pages */
+  --doc-banner-bg:#0E1323;
+  --doc-banner-eyebrow:#00B4DB;
+  --doc-status-bg:#64748B;
+  --doc-swatch-border:#DDDDDD;
+  --doc-hairline:#D4DBEA;
+  --doc-measure:#DC2626;
+  --doc-spacer-fill:rgba(158,119,237,0.1);
+  --doc-spacer-text:#6941C6;
+
+  /* Button primary, transcribed literally from _Button base in the .fig */
+  --button-primary-bg:#7F56D9;
+  --button-primary-border:#7F56D9;
+  --button-primary-text:#FFFFFF;
+}

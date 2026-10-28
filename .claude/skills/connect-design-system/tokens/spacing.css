@@ -1,0 +1,21 @@
+/* Connect — spacing scale. Source: UI-KIT - Connect → Spacing (Spacer, 17 steps).
+   Step NN = NN × 4px. */
+:root{
+  --space-01:4px;   /* 0.25rem */
+  --space-02:8px;   /* 0.5rem  */
+  --space-03:12px;  /* 0.75rem */
+  --space-04:16px;  /* 1rem    */
+  --space-05:20px;  /* 1.25rem */
+  --space-06:24px;  /* 1.5rem  */
+  --space-08:32px;  /* 2rem    */
+  --space-10:40px;  /* 2.5rem  */
+  --space-12:48px;  /* 3rem    */
+  --space-16:64px;  /* 4rem    */
+  --space-20:80px;  /* 5rem    */
+  --space-24:96px;  /* 6rem    */
+  --space-32:128px; /* 8rem    */
+  --space-40:160px; /* 10rem   */
+  --space-48:192px; /* 12rem   */
+  --space-56:224px; /* 14rem   */
+  --space-64:256px; /* 16rem   */
+}

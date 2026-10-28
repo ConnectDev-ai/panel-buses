@@ -1,0 +1,28 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Documentation kit" subtitle="ShadowCard, DesignNote, Spacer, ContainerSpacer, SpacingRow, MeasureLine, Container" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>html,body{margin:0}body{background:var(--neutral-50);padding:16px;box-sizing:border-box;font-family:var(--font-primary)}.lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px}</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>window.__CONNECT_ASSETS='../../assets/logos'</script>
+<script src="../../_ds_bundle.js"></script></head><body><div id="root"></div>
+<script type="text/babel">const { ShadowCard, DesignNote, Spacer, ContainerSpacer, SpacingRow, MeasureLine, MeasureLineBase, Container } = window.ConnectDesignSystem_a5c051;
+const Row = ({label, children}) => <div style={{marginBottom:14}}><div className="lbl">{label}</div><div style={{display:'flex',gap:16,alignItems:'flex-start',flexWrap:'wrap'}}>{children}</div></div>;
+ReactDOM.createRoot(document.getElementById('root')).render(<div>
+  <Row label="ShadowCard">
+    {['xs','md','xl'].map(l => <ShadowCard key={l} level={l} style={{width:150,height:82,padding:16}} />)}
+  </Row>
+  <Row label="DesignNote">
+    <DesignNote size="sm" heading="Proporción de uso" style={{width:420}}>70% neutrales · 22% marca · 8% cian para acentos y datos.</DesignNote>
+  </Row>
+  <Row label="Spacer · ContainerSpacer · SpacingRow">
+    <div style={{display:'flex',gap:4,alignItems:'flex-start'}}>{['02','04','06','08'].map(s => <Spacer key={s} size={s} />)}</div>
+    <ContainerSpacer size="sm - 640px" style={{width:180}} />
+    <SpacingRow step="6" rem="1.5rem" px="24px" style={{width:200}} />
+  </Row>
+  <Row label="MeasureLine · Container">
+    <div style={{padding:'18px 40px'}}><MeasureLine numberPosition="top" length={120} /></div>
+    <MeasureLineBase type="spacer" length={120} />
+    <Container label="768px" width={200} height={70} style={{flexShrink:0}} />
+  </Row>
+</div>);</script></body></html>

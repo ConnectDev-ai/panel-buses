@@ -1,0 +1,159 @@
+/* Connect — dark theme. Source: Color -> Palette Dark.
+   Apply with <html data-theme="dark"> (or any element). */
+[data-theme="dark"]{
+  --neutral-base:#0E1323;
+  --neutral-50:#0E1323;
+  --neutral-100:#161C33;
+  --neutral-200:#1E2644;
+  --neutral-300:#2A345C;
+  --neutral-400:#3B487B;
+  --neutral-500:#6271A3;
+  --neutral-600:#8E9DC4;
+  --neutral-700:#B3C0E2;
+  --neutral-800:#E2E7F4;
+  --neutral-900:#FFFFFF;
+
+  --cyan-50:#0C202B;
+  --cyan-100:#10374B;
+  --cyan-200:#165673;
+  --cyan-300:#1D7FA8;
+  --cyan-400:#4CD0FF;
+  --cyan-500:#7ADAFF;
+  --cyan-600:#A8E5FF;
+  --cyan-700:#D4F0FF;
+  --cyan-800:#EAF8FF;
+  --cyan-900:#F5FCFF;
+  --cyan-main:var(--cyan-400);
+
+  --blue-50:#0F1B35;
+  --blue-100:#162C5B;
+  --blue-200:#22458F;
+  --blue-300:#3463CB;
+  --blue-400:#6696FF;
+  --blue-500:#8CB0FF;
+  --blue-600:#B3CBFF;
+  --blue-700:#D9E5FF;
+  --blue-800:#F0F4FF;
+  --blue-900:#FAFCFF;
+  --blue-main:var(--blue-400);
+
+  --purple-50:#1C122C;
+  --purple-100:#2B184D;
+  --purple-200:#46257A;
+  --purple-300:#693DB8;
+  --purple-400:#9F75F2;
+  --purple-500:#B496F5;
+  --purple-600:#CBB1F8;
+  --purple-700:#DFD1FB;
+  --purple-800:#F0E8FD;
+  --purple-900:#FAF7FE;
+  --purple-main:var(--purple-400);
+
+  --violeta-50:#18142C;
+  --violeta-100:#2A1F4D;
+  --violeta-200:#44327A;
+  --violeta-300:#674FB8;
+  --violeta-400:#9D85F2;
+  --violeta-500:#B3A1F5;
+  --violeta-600:#C9BDF8;
+  --violeta-700:#DFD9FB;
+  --violeta-800:#F0ECFD;
+  --violeta-900:#FAF9FE;
+  --violeta-main:var(--violeta-400);
+
+  --safety-50:#251A11;
+  --safety-100:#442B18;
+  --safety-200:#6C421F;
+  --safety-300:#9F622C;
+  --safety-400:#D98943;
+  --safety-500:#FFAA64;
+  --safety-600:#FFC594;
+  --safety-700:#FFE0C5;
+  --safety-800:#FFF0E2;
+  --safety-900:#FFFBF7;
+  --safety-main:var(--safety-500);
+
+  --fleet-50:#0B221E;
+  --fleet-100:#113D34;
+  --fleet-200:#185F50;
+  --fleet-300:#208771;
+  --fleet-400:#30C2A3;
+  --fleet-500:#5CE9CC;
+  --fleet-600:#8EEDD9;
+  --fleet-700:#C0F6EA;
+  --fleet-800:#E0FAF5;
+  --fleet-900:#F5FDFB;
+  --fleet-main:var(--fleet-500);
+
+  --care-50:#0B2129;
+  --care-100:#113A47;
+  --care-200:#185A6E;
+  --care-300:#22819E;
+  --care-400:#34AFD4;
+  --care-500:#63D3F6;
+  --care-600:#93E3FA;
+  --care-700:#C3F1FC;
+  --care-800:#E1F8FE;
+  --care-900:#F5FDFF;
+  --care-main:var(--care-500);
+
+  --ai-50:#17152B;
+  --ai-100:#272247;
+  --ai-200:#3D356C;
+  --ai-300:#5C509F;
+  --ai-400:#8275C9;
+  --ai-500:#A89DF5;
+  --ai-600:#C1B9F8;
+  --ai-700:#DBD6FB;
+  --ai-800:#EEEBFE;
+  --ai-900:#F9F8FF;
+  --ai-main:var(--ai-500);
+
+  --error-100:#2C1318;
+  --error-200:#531F27;
+  --error-300:#852F3C;
+  --error-400:#F87171;
+  --error-500:#FCA5A5;
+  --error-600:#FEE2E2;
+  --error-main:var(--error-400);
+
+  --warning-100:#291E10;
+  --warning-200:#4D371B;
+  --warning-300:#7B5625;
+  --warning-400:#FBBF24;
+  --warning-500:#FDE047;
+  --warning-600:#FEF08A;
+  --warning-main:var(--warning-400);
+
+  --info-100:#0D203D;
+  --info-200:#16386B;
+  --info-300:#2254A3;
+  --info-400:#60A5FA;
+  --info-500:#93C5FD;
+  --info-600:#BFDBFE;
+  --info-main:var(--info-400);
+
+  --success-100:#0C241B;
+  --success-200:#144431;
+  --success-300:#1F6E4E;
+  --success-400:#34D399;
+  --success-500:#6EE7B7;
+  --success-600:#A7F3D0;
+  --success-main:var(--success-400);
+
+  --surface-page:var(--neutral-50);
+  --surface-card:var(--neutral-100);
+  --surface-sunken:var(--neutral-200);
+  --surface-inverse:var(--neutral-900);
+  --border-subtle:var(--neutral-300);
+  --border-strong:var(--neutral-400);
+  --text-title:var(--neutral-900);
+  --text-body:var(--neutral-800);
+  --text-intermediate:var(--neutral-700);
+  --text-secondary:var(--neutral-600);
+  --text-placeholder:var(--neutral-500);
+  --text-inverse:var(--neutral-50);
+  --text-link:var(--info-400);
+  --icon-default:var(--neutral-900);
+  --icon-inactive:var(--neutral-500);
+}

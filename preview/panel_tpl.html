@@ -1,0 +1,399 @@
+<!doctype html>
+<html data-theme="light" lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect Flotas &mdash; Buses</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<!-- Tokens: copiados tal cual de .claude/skills/connect-design-system/tokens/
+     (skill "connect-design-system" / Brandbook V2 Connect). No se redefinen a
+     mano acá — este <style> solo mapea alias cortos (--fleet, --line, --ink…)
+     a los tokens reales, para no reescribir todas las reglas de abajo. -->
+<link rel="stylesheet" href="assets/tokens/colors.css">
+<link rel="stylesheet" href="assets/tokens/typography.css">
+<link rel="stylesheet" href="assets/tokens/layout.css">
+<link rel="stylesheet" href="assets/tokens/effects.css">
+<style>
+:root{
+ --navy:var(--connect-navy);--fleet:var(--fleet-main);--fleet-dark:var(--fleet-800);--cyan:var(--cyan-main);
+ --ground:var(--neutral-100);--surface:var(--neutral-50);--sunk:var(--neutral-200);--line:var(--neutral-300);
+ --ink:var(--neutral-900);--ink-2:var(--neutral-800);--ink-3:var(--neutral-600);
+ --ok:var(--success-main);--warn:var(--warning-main);--crit:var(--error-main);--neutral:var(--neutral-500);
+ --shadow:var(--shadow-md);
+ --hairline:var(--shadow-card-border);--mono:var(--font-mono);--sb:248px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink-2);font-size:var(--size-body);line-height:var(--leading-normal);
+ font-family:var(--font-primary);
+ display:grid;grid-template-columns:var(--sb) 1fr;min-height:100vh;transition:grid-template-columns .15s ease}
+body.collapsed{--sb:76px}
+body.collapsed aside .brand{padding:10px 0 18px}
+body.collapsed aside .brand img{display:none}
+body.collapsed nav a{justify-content:center;padding:10px;gap:0}
+body.collapsed nav a .lbl{display:none}
+.mono{font-family:var(--mono)}
+aside{background:var(--navy);color:#CBD4E1;display:flex;flex-direction:column;
+ position:sticky;top:0;height:100vh;padding:20px 14px}
+aside .brand{display:flex;align-items:center;justify-content:center;padding:10px 8px 18px}
+aside .brand img{height:52px;width:auto}
+aside .hsep{height:1px;margin:0 14px 10px;background:rgba(255,255,255,.1);flex:none}
+body.collapsed aside .hsep{margin:0 10px 10px}
+aside .foot{margin-top:auto;flex:none}
+aside .foot .fsep{height:1px;margin:0 0 12px;background:rgba(255,255,255,.1)}
+aside .foot .eco{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.04);
+ border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-md);padding:10px 12px;
+ color:#94A3B8;font-size:12px;font-weight:500}
+aside .foot .eco svg{width:15px;height:15px;color:var(--fleet);flex:none}
+body.collapsed aside .foot .eco{justify-content:center;padding:10px;gap:0}
+body.collapsed aside .foot .eco .lbl{display:none}
+.collapse-btn{position:fixed;top:30px;left:var(--sb);transform:translateX(-50%);z-index:30;
+ width:26px;height:26px;border-radius:var(--radius-full);border:1px solid var(--line);
+ background:var(--surface);box-shadow:var(--shadow-sm);color:var(--ink-3);
+ display:grid;place-items:center;cursor:pointer;transition:left .15s ease}
+.collapse-btn:hover{color:var(--ink)}
+.collapse-btn svg{width:13px;height:13px;transition:transform .15s}
+body.collapsed .collapse-btn svg{transform:rotate(180deg)}
+nav{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:#94A3B8;
+ text-decoration:none;font-size:14px;font-weight:500;cursor:pointer;user-select:none}
+nav a svg{width:18px;height:18px}
+nav a:hover{background:rgba(255,255,255,.05);color:#E2E8F0}
+nav a.on{background:rgba(14,167,140,.16);color:#fff}
+nav a.on svg{color:var(--fleet)}
+main{display:flex;flex-direction:column;min-width:0}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+ border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:12px 24px}
+.topbar .crumb{font-size:13px;color:var(--ink-3)}.topbar .crumb b{color:var(--ink);font-weight:600}
+.search{flex:1;max-width:440px;display:flex;align-items:center;gap:8px;background:var(--sunk);
+ border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink-3)}
+.search svg{width:16px;height:16px}
+.search input{border:0;background:transparent;flex:1;font-family:inherit;font-size:13px;color:var(--ink);outline:none}
+.empsel{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+.empsel svg{width:16px;height:16px;color:var(--fleet)}
+.empsel select{border:0;background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);outline:none;cursor:pointer;max-width:230px}
+@media(max-width:820px){.search{display:none}.empsel select{max-width:150px}}
+.tb-r{margin-left:auto;display:flex;align-items:center;gap:12px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--fleet-dark);color:#fff;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:13px}
+.content{padding:24px}
+.view{display:none;flex-direction:column;gap:20px}
+.view.on{display:flex}
+.pghead{display:flex;align-items:flex-end;gap:14px}
+.pghead h1{margin:0;font-weight:700;font-size:24px;letter-spacing:-.02em;color:var(--ink)}
+.pghead .sub{color:var(--ink-3);font-family:var(--mono);font-size:12px;margin-bottom:3px}
+.pghead .refresh{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 13px;cursor:pointer}
+.pghead .refresh svg{width:15px;height:15px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:14px}
+.kpi{background:var(--surface);border-radius:var(--radius-md);box-shadow:var(--hairline),var(--shadow);padding:16px 18px}
+.kpi .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.kpi .l{font-size:12px;color:var(--ink-3)}
+.kpi .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(14,167,140,.12);color:var(--fleet)}
+.kpi .ic svg{width:16px;height:16px}
+.kpi .v{font-family:var(--mono);font-weight:700;font-size:26px;letter-spacing:-.02em;color:var(--ink)}
+.kpi .v.hero{color:var(--fleet)}
+.kpi .s{font-size:11px;color:var(--ink-3);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface);border-radius:var(--radius-md);box-shadow:var(--hairline),var(--shadow);overflow:hidden}
+.card .head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.card .head h3{margin:0;font-weight:600;font-size:15px;color:var(--ink)}
+.card .head .leg{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.card .body{padding:16px 18px}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#map,#mapBig{width:100%}
+#map{height:300px}#mapBig{height:clamp(420px,calc(100vh - 300px),900px)}
+.seg{display:flex;gap:2px;background:var(--sunk);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{border:0;background:transparent;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-3);padding:5px 12px;border-radius:7px;cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:var(--hairline)}
+.tbar{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.tbar .sb{flex:1;display:flex;align-items:center;gap:8px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink-3)}
+.tbar .sb svg{width:15px;height:15px}
+.tbar .sb input{border:0;background:transparent;flex:1;font-family:inherit;font-size:13px;color:var(--ink);outline:none}
+.cnt{color:var(--ink-3);font-family:var(--mono);font-size:12px;white-space:nowrap}
+.scroll{max-height:clamp(320px,calc(100vh - 300px),900px);overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 16px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--surface);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;user-select:none}
+th:hover{color:var(--ink)}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.pat{font-family:var(--mono);font-weight:600;color:var(--ink)}
+tbody tr:hover{background:var(--sunk)}
+.pill{display:inline-block;padding:2px 9px;border-radius:var(--radius-full);font-family:var(--mono);font-weight:600;font-size:11px;border:1px solid currentColor}
+.pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.crit{color:var(--crit)}.pill.na{color:var(--neutral)}
+.muted{color:var(--neutral)}
+.note{color:var(--ink-3);font-size:12px}
+.bars{display:flex;flex-direction:column;gap:11px}
+.barrow{display:grid;grid-template-columns:150px 1fr 74px;gap:10px;align-items:center;font-size:13px}
+.barrow .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barrow .tk{height:9px;background:var(--sunk);border-radius:var(--radius-full);overflow:hidden}
+.barrow .tk>i{display:block;height:100%;background:var(--fleet);border-radius:var(--radius-full)}
+.barrow .vl{text-align:right;font-family:var(--mono);font-weight:600;color:var(--ink)}
+.tiers{display:flex;flex-direction:column;gap:12px}
+.tier{display:grid;grid-template-columns:120px 1fr 54px;gap:12px;align-items:center;font-size:13px}
+.tier .tk{height:10px;border-radius:var(--radius-full);background:var(--sunk);overflow:hidden}
+.tier .tk>i{display:block;height:100%;border-radius:var(--radius-full)}
+.tier .vl{text-align:right;font-family:var(--mono);font-weight:600;color:var(--ink)}
+@media(max-width:820px){body{grid-template-columns:1fr}aside{display:none}}
+</style></head><body>
+
+<aside>
+ <div class="brand"><img src="assets/connect-flotas-fullcolor.svg" alt="Connect Flotas"></div>
+ <div class="hsep"></div>
+ <nav id="nav">
+  <a data-v="dashboard" class="on"><span data-lucide="layout-dashboard"></span><span class="lbl">Dashboard</span></a>
+  <a data-v="mapa"><span data-lucide="map-pinned"></span><span class="lbl">Mapa de flota</span></a>
+  <a data-v="rendimiento"><span data-lucide="gauge"></span><span class="lbl">Rendimiento</span></a>
+  <a data-v="unidades"><span data-lucide="bus"></span><span class="lbl">Unidades</span></a>
+  <a data-v="conectividad"><span data-lucide="activity"></span><span class="lbl">Conectividad</span></a>
+ </nav>
+ <div class="foot">
+  <div class="fsep"></div>
+  <div class="eco"><span data-lucide="sparkles"></span><span class="lbl">Ecosistema Connect</span></div>
+ </div>
+ </aside>
+ <button id="collapseBtn" class="collapse-btn" type="button" aria-label="Colapsar menú"><span data-lucide="chevron-left"></span></button>
+
+<main>
+ <div class="topbar">
+  <div class="crumb">Connect Flotas · <b id="crumb">Dashboard</b></div>
+  <div class="empsel"><span data-lucide="building-2"></span>
+   <select id="empsel"></select></div>
+  <div class="search"><span data-lucide="search"></span>
+   <input id="gq" placeholder="Buscar patente o empresa…"></div>
+  <div class="tb-r">
+   <div class="avatar">SS</div></div>
+ </div>
+
+ <div class="content">
+  <!-- DASHBOARD -->
+  <section class="view on" id="view-dashboard">
+   <div class="pghead"><h1>Panel de buses</h1><span class="sub">Datos al 2026-10-15</span>
+    <button class="refresh"><span data-lucide="refresh-cw"></span>Actualizar</button></div>
+   <div class="kpis" id="kpis"></div>
+   <div class="grid2">
+    <div class="card"><div class="head"><h3>Top unidades por km (30 d)</h3></div>
+     <div class="scroll"><table id="topkm"><thead><tr><th>Patente</th><th>Empresa</th>
+      <th class="num">km 30d</th><th class="num">km/L</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="card"><div class="head"><h3>Km recorridos por empresa (30 d)</h3></div>
+     <div class="body"><div class="bars" id="empbars"></div></div></div>
+   </div>
+  </section>
+
+  <!-- MAPA -->
+  <section class="view" id="view-mapa">
+   <div class="pghead"><h1>Mapa de flota</h1><span class="sub" id="mapasub"></span>
+    <div class="seg" style="margin-left:auto" id="maptoggle">
+     <button class="on" data-m="pos">Posiciones</button>
+     <button data-m="heat">Heatmap de movimiento</button></div></div>
+   <div class="card"><div class="head"><h3 id="maptitle">Última posición por unidad</h3>
+     <span class="leg" id="maplegend"><span><i style="background:var(--ok)"></i>al día</span>
+      <span><i style="background:var(--warn)"></i>reciente</span>
+      <span><i style="background:var(--crit)"></i>caído</span>
+      <span><i style="background:var(--neutral)"></i>sin dato</span></span></div>
+    <div id="mapBig"></div></div>
+   <p class="note" id="mapnote"></p>
+  </section>
+
+  <!-- RENDIMIENTO -->
+  <section class="view" id="view-rendimiento">
+   <div class="pghead"><h1>Rendimiento</h1><span class="sub">km/L por delta de 30 d · solo telemetría</span></div>
+   <div class="kpis" id="rkpis"></div>
+   <div class="card"><div class="head"><h3>Por empresa</h3><span class="cnt" id="rcnt"></span></div>
+    <div class="scroll"><table id="remp"><thead><tr><th>Empresa</th>
+     <th class="num">Buses</th><th class="num">km total 30d</th>
+     <th class="num">km/día prom</th><th class="num">km/L mediano</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <!-- UNIDADES -->
+  <section class="view" id="view-unidades">
+   <div class="pghead"><h1>Unidades</h1><span class="sub">Toda la flota de buses</span></div>
+   <div class="card"><div class="tbar"><div class="sb"><span data-lucide="search"></span>
+     <input id="q" placeholder="Filtrar por patente o empresa…"></div><span class="cnt" id="ucnt"></span></div>
+    <div class="scroll"><table id="t"><thead><tr>
+     <th data-k="patente">Patente</th><th data-k="empresa">Empresa</th><th data-k="modelo">Modelo</th>
+     <th class="num" data-k="km_30d">km 30d</th><th class="num" data-k="rinde_kml">km/L</th>
+     <th class="num" data-k="odometro">Odóm.</th><th class="num" data-k="horas_motor">Horas</th>
+     <th class="num" data-k="dias_sin_gps">GPS</th><th class="num" data-k="dias_sin_can">CAN</th>
+     <th data-k="telemetria">Tlm</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <!-- CONECTIVIDAD -->
+  <section class="view" id="view-conectividad">
+   <div class="pghead"><h1>Conectividad</h1><span class="sub">Estado GPS y telemetría (CAN)</span></div>
+   <div class="grid2">
+    <div class="card"><div class="head"><h3>GPS</h3></div><div class="body"><div class="tiers" id="gpstiers"></div></div></div>
+    <div class="card"><div class="head"><h3>Telemetría (CAN)</h3></div><div class="body"><div class="tiers" id="cantiers"></div></div></div>
+   </div>
+   <div class="card"><div class="head"><h3>A revisar — GPS al día pero sin CAN</h3><span class="cnt" id="revcnt"></span></div>
+    <div class="body"><p class="note" style="margin:0 0 10px">Posición fresca = equipo vivo; si no llega CAN, el problema es el bus de datos o la instalación, no el vehículo. Son las candidatas a intervención.</p>
+     <div class="scroll" style="max-height:360px"><table id="rev"><thead><tr><th>Patente</th><th>Empresa</th>
+      <th class="num">GPS</th><th class="num">CAN</th></tr></thead><tbody></tbody></table></div></div></div>
+  </section>
+ </div>
+</main>
+
+<script>
+const DATA=__DATA_JSON__, HEAT=__HEAT_JSON__;
+let empSel='';  // '' = todas las empresas
+const es=x=>Number(x).toLocaleString('es-CL');
+const fmt=(x,d=0)=>x==null?'<span class="muted">&mdash;</span>':Number(x).toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d});
+const col=d=>d==null?'var(--neutral)':d<=2?'var(--ok)':d<=30?'var(--warn)':'var(--crit)';
+const pill=d=>{if(d==null)return '<span class="pill na">s/d</span>';const c=d<=2?'ok':d<=30?'warn':'crit';return '<span class="pill '+c+'">'+d+' d</span>';};
+const cs=getComputedStyle(document.documentElement), cvar=v=>cs.getPropertyValue(v).trim();
+const emp0=r=>r.empresa||'—';
+// La seleccion de empresa manda sobre TODAS las vistas.
+function cur(){return empSel?DATA.filter(r=>emp0(r)===empSel):DATA;}
+function curHeat(){return empSel?HEAT.filter(h=>(h[3]||'—')===empSel):HEAT;}
+
+// KPIs calculados sobre la seleccion actual, no sobre toda la flota.
+function computeK(rows){const n=rows.length;
+ const km=rows.filter(r=>r.km_30d).map(r=>r.km_30d);const kmSum=km.reduce((a,b)=>a+b,0);
+ const ri=rows.filter(r=>r.rinde_kml).map(r=>r.rinde_kml).sort((a,b)=>a-b);
+ const med=ri.length?ri[Math.floor(ri.length/2)]:0;
+ const aldia=rows.filter(r=>r.dias_sin_gps!=null&&r.dias_sin_gps<=2).length;
+ return {total:n,con_pos:rows.filter(r=>r.lat!=null).length,
+  km_dia:km.length?Math.round(kmSum/km.length/30):0,
+  rinde:med?Math.round(med*100)/100:0,
+  pct_gps:n?Math.round(100*aldia/n):0,
+  sin_tlm:rows.filter(r=>r.dias_sin_can==null).length,
+  km_total:Math.round(kmSum)};}
+
+function kpiCard(l,ic,v,s,hero){return '<div class="kpi"><div class="top"><span class="l">'+l+
+ '</span><span class="ic"><span data-lucide="'+ic+'"></span></span></div><div class="v'+(hero?' hero':'')+
+ '">'+v+'</div><div class="s">'+s+'</div></div>';}
+
+function porEmpresa(rows){const m={};for(const r of rows){const e=emp0(r);(m[e]=m[e]||[]).push(r);}
+ return Object.entries(m).map(([e,rs])=>{const km=rs.filter(x=>x.km_30d).map(x=>x.km_30d);
+  const ri=rs.filter(x=>x.rinde_kml).map(x=>x.rinde_kml).sort((a,b)=>a-b);
+  const med=ri.length?ri[Math.floor(ri.length/2)]:null;const kmt=km.reduce((a,b)=>a+b,0);
+  return {e,buses:rs.length,kmt,kmd:km.length?kmt/km.length/30:0,rinde:med};}).sort((a,b)=>b.kmt-a.kmt);}
+
+// ── Dashboard ──
+function renderDashboard(rows,K){
+ document.getElementById('kpis').innerHTML=
+  kpiCard('Buses en la flota','bus',es(K.total),empSel||'categoría BUS')
+ +kpiCard('GPS al día (&le;2 d)','satellite',K.pct_gps+'%',Math.round(K.pct_gps*K.total/100)+' de '+K.total,1)
+ +kpiCard('km/día promedio','route',es(K.km_dia),'ventana 30 d')
+ +kpiCard('Rendimiento mediano','fuel',String(K.rinde).replace('.',','),'km/L · telemetría')
+ +kpiCard('Sin dato CAN','unplug',es(K.sin_tlm),'telemetría a revisar');
+ const tb=document.querySelector('#topkm tbody');tb.innerHTML='';
+ rows.filter(r=>r.km_30d).slice(0,10).forEach(r=>{const t=document.createElement('tr');
+  t.innerHTML='<td class="pat">'+(r.patente||'')+'</td><td>'+(r.empresa||'')+'</td><td class="num">'+fmt(r.km_30d)+'</td><td class="num">'+fmt(r.rinde_kml,2)+'</td>';tb.appendChild(t);});
+ const emp=porEmpresa(rows).filter(x=>x.kmt>0).slice(0,10);const mx=Math.max(...emp.map(x=>x.kmt),1);
+ document.getElementById('empbars').innerHTML=emp.length
+  ?emp.map(x=>'<div class="barrow"><span class="nm" title="'+x.e+'">'+x.e+
+   '</span><span class="tk"><i style="width:'+(100*x.kmt/mx)+'%"></i></span><span class="vl">'+es(Math.round(x.kmt))+'</span></div>').join('')
+  :'<p class="note" style="margin:0">Sin kilometraje en la ventana.</p>';}
+
+// ── Rendimiento ──
+function renderRend(rows,K){
+ document.getElementById('rkpis').innerHTML=
+  kpiCard('Km total flota (30 d)','route',es(K.km_total),'suma de recorridos')
+ +kpiCard('Rendimiento mediano','fuel',String(K.rinde).replace('.',','),'km/L',1)
+ +kpiCard('Buses con km/L','badge-check',es(rows.filter(r=>r.rinde_kml).length),'cobertura telemetría');
+ const emp=porEmpresa(rows);document.getElementById('rcnt').textContent=emp.length+(emp.length===1?' empresa':' empresas');
+ const tb=document.querySelector('#remp tbody');tb.innerHTML='';
+ emp.forEach(x=>{const t=document.createElement('tr');
+  t.innerHTML='<td>'+x.e+'</td><td class="num">'+x.buses+'</td><td class="num">'+fmt(Math.round(x.kmt))+
+  '</td><td class="num">'+fmt(Math.round(x.kmd))+'</td><td class="num">'+(x.rinde?fmt(x.rinde,2):'<span class="muted">&mdash;</span>')+'</td>';tb.appendChild(t);});}
+
+// ── Unidades ──
+let sortK='km_30d',sortDir=-1;
+function renderT(){const q=(document.getElementById('q').value||'').toLowerCase();
+ let rows=cur().filter(r=>!q||(r.patente||'').toLowerCase().includes(q)||(r.empresa||'').toLowerCase().includes(q));
+ rows.sort((a,b)=>{let x=a[sortK],y=b[sortK];if(x==null)return 1;if(y==null)return -1;
+  if(typeof x==='string')return sortDir*x.localeCompare(y);return sortDir*(x-y);});
+ const tb=document.querySelector('#t tbody');tb.innerHTML='';
+ for(const r of rows){const tr=document.createElement('tr');
+  tr.innerHTML='<td class="pat">'+(r.patente||'')+'</td><td>'+(r.empresa||'')+'</td>'
+   +'<td>'+(r.modelo||'<span class="muted">&mdash;</span>')+'</td>'
+   +'<td class="num">'+fmt(r.km_30d)+'</td><td class="num">'+fmt(r.rinde_kml,2)+'</td>'
+   +'<td class="num">'+fmt(r.odometro)+'</td><td class="num">'+fmt(r.horas_motor)+'</td>'
+   +'<td class="num">'+pill(r.dias_sin_gps)+'</td>'
+   +'<td class="num">'+(r.dias_sin_can==null?'<span class="muted">&mdash;</span>':pill(r.dias_sin_can))+'</td>'
+   +'<td>'+(r.telemetria?'sí':'<span class="muted">no</span>')+'</td>';tb.appendChild(tr);}
+ document.getElementById('ucnt').textContent=rows.length+' buses';}
+document.querySelectorAll('#t th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;
+ if(k===sortK)sortDir*=-1;else{sortK=k;sortDir=(k==='patente'||k==='empresa')?1:-1;}renderT();});
+document.getElementById('q').oninput=renderT;
+// buscador global -> filtra unidades (dentro de la empresa elegida) y navega
+document.getElementById('gq').addEventListener('input',e=>{document.getElementById('q').value=e.target.value;renderT();if(e.target.value)go('unidades');});
+
+// ── Conectividad ──
+function tiers(rows,key){const b={aldia:0,rec:0,caido:0,sd:0};for(const r of rows){const d=r[key];
+ if(d==null)b.sd++;else if(d<=2)b.aldia++;else if(d<=30)b.rec++;else b.caido++;}return b;}
+function renderTiers(elid,b,tot){const defs=[['Al día (&le;2 d)',b.aldia,'var(--ok)'],
+ ['Reciente (3-30)',b.rec,'var(--warn)'],['Caído (+30)',b.caido,'var(--crit)'],['Sin dato',b.sd,'var(--neutral)']];
+ document.getElementById(elid).innerHTML=defs.map(([l,v,c])=>'<div class="tier"><span>'+l+
+  '</span><span class="tk"><i style="width:'+(tot?100*v/tot:0)+'%;background:'+c+'"></i></span><span class="vl">'+es(v)+'</span></div>').join('');}
+function renderConect(rows){
+ renderTiers('gpstiers',tiers(rows,'dias_sin_gps'),rows.length);
+ renderTiers('cantiers',tiers(rows,'dias_sin_can'),rows.length);
+ const rev=rows.filter(r=>r.telemetria&&(r.dias_sin_can==null||r.dias_sin_can>30)&&r.dias_sin_gps!=null&&r.dias_sin_gps<=2);
+ document.getElementById('revcnt').textContent=rev.length+' buses';
+ const tb=document.querySelector('#rev tbody');tb.innerHTML='';
+ rev.forEach(r=>{const t=document.createElement('tr');t.innerHTML='<td class="pat">'+(r.patente||'')+'</td><td>'+(r.empresa||'')+'</td><td class="num">'+pill(r.dias_sin_gps)+'</td><td class="num">'+(r.dias_sin_can==null?'<span class="pill crit">nunca</span>':pill(r.dias_sin_can))+'</td>';tb.appendChild(t);});}
+
+// ── Mapa (lazy) ──
+let map=null,posLayer=null,heatLayer=null,mapMode='pos';
+function buildLayers(){const rows=cur().filter(r=>r.lat!=null&&r.lon!=null);
+ posLayer=L.layerGroup();const pts=[];
+ for(const r of rows){const c=cvar(col(r.dias_sin_gps).replace('var(','').replace(')',''));
+  L.circleMarker([r.lat,r.lon],{radius:5,color:c,weight:1,fillColor:c,fillOpacity:.8})
+   .bindPopup('<b>'+(r.patente||'')+'</b><br>'+(r.empresa||'')+(r.modelo?'<br>'+r.modelo:'')+'<br>km 30d: '+fmt(r.km_30d)+'<br>km/L: '+fmt(r.rinde_kml,2)).addTo(posLayer);
+  pts.push([r.lat,r.lon]);}
+ const h=curHeat();const mx=Math.max(...h.map(x=>x[2]),1);
+ heatLayer=L.heatLayer(h.map(x=>[x[0],x[1],x[2]]),{radius:18,blur:14,max:Math.max(8,mx*0.6),minOpacity:.25,
+  gradient:{0.25:'#0EA78C',0.55:'#00B4DB',0.85:'#FE931A',1:'#B01212'}});
+ document.getElementById('mapasub').textContent=rows.length+' buses con posición'+(empSel?' · '+empSel:'');
+ return pts;}
+function applyMapMode(pts){
+ if(mapMode==='pos'){if(heatLayer)map.removeLayer(heatLayer);posLayer.addTo(map);
+  document.getElementById('maptitle').textContent='Última posición por unidad';
+  document.getElementById('maplegend').style.display='';
+  document.getElementById('mapnote').textContent='Posición actual (al día) o última conocida (mudo). Color = estado GPS.';}
+ else{if(posLayer)map.removeLayer(posLayer);heatLayer.addTo(map);
+  document.getElementById('maptitle').textContent='Heatmap de movimiento (90 d)';
+  document.getElementById('maplegend').style.display='none';
+  document.getElementById('mapnote').textContent='Densidad de posiciones en los últimos 90 días (una posición por bus por día). Muestra dónde se concentra la operación, no la ruta exacta.';}
+ if(pts&&pts.length)map.fitBounds(pts,{padding:[30,30]});}
+function initMap(){if(map)return;map=L.map('mapBig').setView([-35,-71],5);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap',maxZoom:18}).addTo(map);
+ applyMapMode(buildLayers());}
+function rebuildMap(){if(!map)return;
+ if(posLayer)map.removeLayer(posLayer);if(heatLayer)map.removeLayer(heatLayer);
+ applyMapMode(buildLayers());}
+function setMapMode(m){mapMode=m;document.querySelectorAll('#maptoggle button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));if(map)applyMapMode(null);}
+document.querySelectorAll('#maptoggle button').forEach(b=>b.onclick=()=>setMapMode(b.dataset.m));
+
+// ── Re-render global al cambiar de empresa ──
+function renderAll(){const rows=cur();const K=computeK(rows);
+ renderDashboard(rows,K);renderRend(rows,K);renderConect(rows);renderT();rebuildMap();
+ if(window.lucide)lucide.createIcons();}
+
+(function(){const sel=document.getElementById('empsel');
+ const emps=[...new Set(DATA.map(emp0))].sort((a,b)=>a.localeCompare(b,'es'));
+ sel.innerHTML='<option value="">Todas las empresas ('+DATA.length+')</option>'+
+  emps.map(e=>'<option value="'+e.replace(/"/g,'&quot;')+'">'+e+' ('+DATA.filter(r=>emp0(r)===e).length+')</option>').join('');
+ sel.onchange=()=>{empSel=sel.value;renderAll();};})();
+
+// ── Navegación ──
+function go(v){document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
+ document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+ document.getElementById('crumb').textContent={dashboard:'Dashboard',mapa:'Mapa de flota',rendimiento:'Rendimiento',unidades:'Unidades',conectividad:'Conectividad'}[v];
+ if(v==='mapa'){initMap();setTimeout(()=>map&&map.invalidateSize(),60);}
+ window.scrollTo(0,0);}
+document.querySelectorAll('#nav a').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.v);});
+window.addEventListener('resize',()=>{if(map&&document.getElementById('view-mapa').classList.contains('on'))map.invalidateSize();});
+
+// ── Colapsar menú ──
+function setCollapsed(v){document.body.classList.toggle('collapsed',v);
+ document.getElementById('collapseBtn').setAttribute('aria-label',v?'Expandir menú':'Colapsar menú');
+ try{localStorage.setItem('sbCollapsed',v?'1':'0');}catch(e){}
+ if(map)setTimeout(()=>map.invalidateSize(),160);}
+try{if(localStorage.getItem('sbCollapsed')==='1')document.body.classList.add('collapsed');}catch(e){}
+document.getElementById('collapseBtn').onclick=()=>setCollapsed(!document.body.classList.contains('collapsed'));
+
+renderAll();
+</script></body></html>

@@ -1,0 +1,39 @@
+/* Connect — typography tokens. Source: UI-KIT - Connect → Typography. */
+:root{
+  --font-primary:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --font-sans-alt:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-ui:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+  --weight-regular:400;
+  --weight-medium:500;
+  --weight-semibold:600;
+  --weight-bold:700;
+
+  --leading-tight:1.2;   /* headings & subs */
+  --leading-normal:1.4;  /* body, captions, actions */
+  --leading-flat:0.9;    /* labels trimmed to cap height */
+
+  --size-hero:64px;
+  --size-h1:40px;
+  --size-h2:32px;
+  --size-h3:28px;
+  --size-h4:20px;
+  --size-subtitle:32px;
+  --size-subheading:28px;
+  --size-body:14px;
+  --size-body-sm:12px;
+  --size-caption:12px;
+  --size-caption-sm:10px;
+
+  --tracking-hero:-0.035em;
+  --tracking-h1:-0.02em;
+  --tracking-h2:-0.01em;
+  --tracking-h3:0em;
+  --tracking-sub:-0.02em;
+  --tracking-body:0em;
+  --tracking-button:0.04em;
+  --tracking-button-sm:0.06em;
+  --tracking-caption:0.08em;
+  --tracking-caption-sm:0.12em;
+}

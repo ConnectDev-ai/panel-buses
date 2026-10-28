@@ -1,0 +1,13 @@
+/* Connect — minimal element defaults so unstyled pages inherit the brand. */
+body{font-family:var(--font-primary);font-size:var(--size-body);line-height:var(--leading-normal);color:var(--text-body);background:var(--surface-page)}
+h1,h2,h3,h4{font-family:var(--font-primary);font-weight:700;line-height:var(--leading-tight);color:var(--text-title);margin:0}
+h1{font-size:var(--size-h1);letter-spacing:var(--tracking-h1)}
+h2{font-size:var(--size-h2);letter-spacing:var(--tracking-h2)}
+h3{font-size:var(--size-h3)}
+h4{font-size:var(--size-h4)}
+p{margin:0}
+a{color:var(--text-link);text-decoration:underline;text-underline-offset:2px}
+a:hover{color:var(--info-500);text-decoration:underline}
+a:active{color:var(--info-600)}
+code,kbd,samp{font-family:var(--font-mono)}
+::selection{background:var(--cyan-200);color:var(--neutral-900)}
