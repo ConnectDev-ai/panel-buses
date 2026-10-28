@@ -359,8 +359,7 @@ function applyMapMode(pts){
   document.getElementById('mapnote').textContent='Densidad de posiciones en los últimos 90 días (una posición por bus por día). Muestra dónde se concentra la operación, no la ruta exacta.';}
  if(pts&&pts.length)map.fitBounds(pts,{padding:[30,30]});}
 function initMap(){if(map)return;map=L.map('mapBig').setView([-35,-71],5);
- L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap',maxZoom:18}).addTo(map);
- applyMapMode(buildLayers());}
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap',maxZoom:18}).addTo(map);}
 function rebuildMap(){if(!map)return;
  if(posLayer)map.removeLayer(posLayer);if(heatLayer)map.removeLayer(heatLayer);
  applyMapMode(buildLayers());}
@@ -382,7 +381,7 @@ function renderAll(){const rows=cur();const K=computeK(rows);
 function go(v){document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='view-'+v));
  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
  document.getElementById('crumb').textContent={dashboard:'Dashboard',mapa:'Mapa de flota',rendimiento:'Rendimiento',unidades:'Unidades',conectividad:'Conectividad'}[v];
- if(v==='mapa'){initMap();setTimeout(()=>map&&map.invalidateSize(),60);}
+ if(v==='mapa'){initMap();setTimeout(()=>{if(!map)return;map.invalidateSize();rebuildMap();},60);}
  window.scrollTo(0,0);}
 document.querySelectorAll('#nav a').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.v);});
 window.addEventListener('resize',()=>{if(map&&document.getElementById('view-mapa').classList.contains('on'))map.invalidateSize();});
