@@ -3,6 +3,10 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Node (frontend/ — proyecto Vercel propio del panel)
+frontend/node_modules/
+frontend/.vercel/
+
 # Entornos y secrets
 .env
 .env.*

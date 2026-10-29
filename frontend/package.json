@@ -1,0 +1,10 @@
+{
+  "name": "connect-flotas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Panel de buses (Connect Flotas) — frontend propio, datos en vivo desde Neon. Acceso vía SSO de un solo uso emitido por portalConnect (ver api/data.js).",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

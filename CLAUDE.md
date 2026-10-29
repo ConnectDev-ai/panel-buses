@@ -4,12 +4,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Pure data backend for Grupo Kaufmann's bus panel: three tables in Neon
-(Postgres) consumed by a separate frontend (**Portal Connect**, a different
-repo, not here). **This repo has no frontend.** It was extracted from `dataQS`
+Data backend for Grupo Kaufmann's bus panel: three tables in Neon (Postgres),
+plus (since 2026-10-29) its own small frontend in `frontend/` — **Connect
+Flotas**, a standalone Vercel project, same pattern as Connect Care / Connect
+Talleres (separate project, linked into Portal Connect only via a `vercel.json`
+rewrite and an SSO handoff, not shared code). It was extracted from `dataQS`
 (`metricas_bus.py`, `buses_en_sucursal.py`) and `rendimientos.kf`
 (`rutas/export_bus_viajes_neon.py`) so a team that doesn't work in either of
 those repos can advance the panel without having to understand them whole.
+
+The root of the repo (everything except `frontend/`) stays a pure Python data
+pipeline — it writes to Neon and does not serve `frontend/` itself.
+
+## `frontend/` — Connect Flotas (Vercel project, Node)
+
+Self-contained: `index.html`/`index.css`/`index.js` (the dashboard — KPIs,
+mapa con heatmap, rendimiento, unidades, conectividad) + `api/data.js` (the
+only server code, reads `buses_metricas` from Neon for
+`dataset=metricas|heat`). No login of its own and no `buses_en_sucursal`
+access here — those stay in Portal Connect's own `api/flota.js`
+(`dataset=buses`, the "Buses en Taller" page).
+
+Access is a one-time SSO handoff, not a second login: Portal Connect already
+holds the real session (SAML/Supabase) and the allowlist
+(`api/_allowlist.js` there). When a user clicks the "Connect Flotas" card on
+its Inicio page, Portal Connect's `api/flotas-sso.js` checks that session +
+allowlist and mints a short-lived JWT, then redirects to
+`https://connect.grupokaufmann.com/flotas?t=<jwt>` (rewritten by Portal
+Connect's `vercel.json` to this project). `frontend/api/data.js` only
+verifies that JWT (shared secret `FLOTAS_SSO_SECRET`, set in **both**
+projects) — it does not re-check the session or the allowlist, it trusts that
+Portal Connect already did.
+
+`@neondatabase/serverless` returns Postgres `numeric` columns as strings, not
+numbers — `index.js` sums `km_30d` across rows for the per-empresa charts, so
+`api/data.js` casts those fields to `Number` before responding. Don't remove
+that cast; without it the sums silently become string concatenation (garbage
+numbers, `Infinity` on the km/día KPI) instead of a type error.
+
+Local dev needs Vercel env vars pulled (`vercel env pull` from inside
+`frontend/`, requires access to the `connect-flotas` Vercel project) — there's
+no `.env.example` for this folder, unlike the Python root.
 
 ## Commands
 
@@ -143,7 +178,7 @@ bucket).
 |---|---|---|
 | `dataQS` | The fleet pipeline (Copiloto API + master + QuickSight) | Source of the two CSVs in S3. Don't touch its cron without coordinating — as of extraction (2026-10-22), QS still runs `metricas_bus.py`/`buses_en_sucursal.py` itself too, in parallel, as a safety net |
 | `rendimientos.kf` (local folder `flespi-routes`) | Fuel efficiency / ML models, large unrelated project | Source of `rutas/export_bus_viajes_neon.py` and its `trips_features` mart |
-| Portal Connect | The actual panel frontend (separate repo) | Reads all three Neon tables described here. Coordinate schema changes with that team |
+| Portal Connect | The company portal (separate repo) | Reads `buses_en_sucursal`/`buses_metricas` itself for its own "Buses en Taller" page, and mints the SSO token that lets users into this repo's `frontend/` (Connect Flotas). Coordinate schema changes with that team, and keep `FLOTAS_SSO_SECRET` in sync in both Vercel projects if it's ever rotated |
 
 Known gap: a GCP connector was provisioned (credentials only, in
 `rendimientos.kf`'s `.env`: `BASEDEDATOSGCP`/`USUARIOGCP`/`PASSWORDGCP`) for a

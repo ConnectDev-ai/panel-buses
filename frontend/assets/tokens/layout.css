@@ -1,0 +1,36 @@
+/* Connect — layout, radii and container tokens.
+   Source: UI-KIT - Connect → Grids, Container spacer, _Container. */
+:root{
+  --radius-xs:4px;   /* status chips */
+  --radius-sm:8px;   /* buttons, swatches, gradient cards */
+  --radius-md:12px;  /* shadow cards, blur panels */
+  --radius-lg:16px;  /* page containers */
+  --radius-full:9999px;
+
+  /* Breakpoint containers (Container spacer) */
+  --container-sm:640px;
+  --container-md:768px;
+  --container-lg:1024px;
+  --container-xl:1280px;
+
+  /* Grids */
+  --grid-desktop-width:1280px;
+  --grid-desktop-content:1216px;
+  --grid-desktop-columns:12; /* @kind other */
+  --grid-desktop-gutter:32px;
+  --grid-desktop-margin:32px;
+
+  --grid-tablet-width:768px;
+  --grid-tablet-content:704px;
+  --grid-tablet-columns:8; /* @kind other */
+  --grid-tablet-gutter:32px;
+  --grid-tablet-margin:32px;
+
+  --grid-mobile-width:375px;
+  --grid-mobile-content:343px;
+  --grid-mobile-columns:4; /* @kind other */
+  --grid-mobile-gutter:16px;
+  --grid-mobile-margin:16px;
+
+  --border-hairline:1px;
+}

@@ -1,0 +1,126 @@
+<!doctype html>
+<html data-theme="light" lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect Flotas &mdash; Panel de buses</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+<!-- Tokens: copiados tal cual de .claude/skills/connect-design-system/tokens/
+     (skill "connect-design-system" / Brandbook V2 Connect). No se redefinen a
+     mano acá — index.css solo mapea alias cortos (--fleet, --line, --ink…)
+     a los tokens reales. -->
+<link rel="stylesheet" href="assets/tokens/colors.css">
+<link rel="stylesheet" href="assets/tokens/typography.css">
+<link rel="stylesheet" href="assets/tokens/layout.css">
+<link rel="stylesheet" href="assets/tokens/effects.css">
+<link rel="stylesheet" href="index.css">
+</head><body>
+
+<div id="gate" class="gate">
+ <div class="gate-card">
+  <img src="assets/connect-flotas-logo.svg" alt="Connect Flotas" class="gate-logo">
+  <p id="gateMsg">Verificando acceso…</p>
+  <a id="gateBack" href="https://connect.grupokaufmann.com/workspace" style="display:none">Volver a Portal Connect</a>
+ </div>
+</div>
+
+<aside>
+ <div class="brand"><img src="assets/connect-flotas-logo.svg" alt="Connect Flotas"></div>
+ <div class="hsep"></div>
+ <nav id="nav">
+  <a data-v="dashboard" class="on"><span data-lucide="layout-dashboard"></span><span class="lbl">Dashboard</span></a>
+  <a data-v="mapa"><span data-lucide="map-pinned"></span><span class="lbl">Mapa de flota</span></a>
+  <a data-v="rendimiento"><span data-lucide="gauge"></span><span class="lbl">Rendimiento</span></a>
+  <a data-v="unidades"><span data-lucide="bus"></span><span class="lbl">Unidades</span></a>
+  <a data-v="conectividad"><span data-lucide="activity"></span><span class="lbl">Conectividad</span></a>
+ </nav>
+ <div class="foot">
+  <div class="fsep"></div>
+  <a class="eco" href="https://connect.grupokaufmann.com/workspace"><span data-lucide="sparkles"></span><span class="lbl">Ecosistema Connect</span></a>
+ </div>
+ </aside>
+ <button id="collapseBtn" class="collapse-btn" type="button" aria-label="Colapsar menú"><span data-lucide="chevron-left"></span></button>
+
+<main>
+ <div class="topbar">
+  <div class="crumb">Connect Flotas · <b id="crumb">Dashboard</b></div>
+  <div class="empsel"><span data-lucide="building-2"></span>
+   <select id="empsel"></select></div>
+  <div class="search"><span data-lucide="search"></span>
+   <input id="gq" placeholder="Buscar patente o empresa…"></div>
+  <div class="tb-r">
+   <div class="avatar">CF</div></div>
+ </div>
+
+ <div class="content">
+  <!-- DASHBOARD -->
+  <section class="view on" id="view-dashboard">
+   <div class="pghead"><h1>Panel de buses</h1><span class="sub" id="dashdate"></span>
+    <button class="refresh"><span data-lucide="refresh-cw"></span>Actualizar</button></div>
+   <div class="kpis" id="kpis"></div>
+   <div class="grid2">
+    <div class="card"><div class="head"><h3>Top unidades por km (30 d)</h3></div>
+     <div class="scroll"><table id="topkm"><thead><tr><th>Patente</th><th>Empresa</th>
+      <th class="num">km 30d</th><th class="num">km/L</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="card"><div class="head"><h3>Km recorridos por empresa (30 d)</h3></div>
+     <div class="body"><div class="bars" id="empbars"></div></div></div>
+   </div>
+  </section>
+
+  <!-- MAPA -->
+  <section class="view" id="view-mapa">
+   <div class="pghead"><h1>Mapa de flota</h1><span class="sub" id="mapasub"></span>
+    <div class="seg" style="margin-left:auto" id="maptoggle">
+     <button class="on" data-m="pos">Posiciones</button>
+     <button data-m="heat">Heatmap de movimiento</button></div></div>
+   <div class="card"><div class="head"><h3 id="maptitle">Última posición por unidad</h3>
+     <span class="leg" id="maplegend"><span><i style="background:var(--ok)"></i>al día</span>
+      <span><i style="background:var(--warn)"></i>reciente</span>
+      <span><i style="background:var(--crit)"></i>caído</span>
+      <span><i style="background:var(--neutral)"></i>sin dato</span></span></div>
+    <div id="mapBig"></div></div>
+   <p class="note" id="mapnote"></p>
+  </section>
+
+  <!-- RENDIMIENTO -->
+  <section class="view" id="view-rendimiento">
+   <div class="pghead"><h1>Rendimiento</h1><span class="sub">km/L por delta de 30 d · solo telemetría</span></div>
+   <div class="kpis" id="rkpis"></div>
+   <div class="card"><div class="head"><h3>Por empresa</h3><span class="cnt" id="rcnt"></span></div>
+    <div class="scroll"><table id="remp"><thead><tr><th>Empresa</th>
+     <th class="num">Buses</th><th class="num">km total 30d</th>
+     <th class="num">km/día prom</th><th class="num">km/L mediano</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <!-- UNIDADES -->
+  <section class="view" id="view-unidades">
+   <div class="pghead"><h1>Unidades</h1><span class="sub">Toda la flota de buses</span></div>
+   <div class="card"><div class="tbar"><div class="sb"><span data-lucide="search"></span>
+     <input id="q" placeholder="Filtrar por patente o empresa…"></div><span class="cnt" id="ucnt"></span></div>
+    <div class="scroll"><table id="t"><thead><tr>
+     <th data-k="patente">Patente</th><th data-k="empresa">Empresa</th><th data-k="modelo">Modelo</th>
+     <th class="num" data-k="km_30d">km 30d</th><th class="num" data-k="rinde_kml">km/L</th>
+     <th class="num" data-k="odometro">Odóm.</th><th class="num" data-k="horas_motor">Horas</th>
+     <th class="num" data-k="dias_sin_gps">GPS</th><th class="num" data-k="dias_sin_can">CAN</th>
+     <th data-k="telemetria">Tlm</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <!-- CONECTIVIDAD -->
+  <section class="view" id="view-conectividad">
+   <div class="pghead"><h1>Conectividad</h1><span class="sub">Estado GPS y telemetría (CAN)</span></div>
+   <div class="grid2">
+    <div class="card"><div class="head"><h3>GPS</h3></div><div class="body"><div class="tiers" id="gpstiers"></div></div></div>
+    <div class="card"><div class="head"><h3>Telemetría (CAN)</h3></div><div class="body"><div class="tiers" id="cantiers"></div></div></div>
+   </div>
+   <div class="card"><div class="head"><h3>A revisar — GPS al día pero sin CAN</h3><span class="cnt" id="revcnt"></span></div>
+    <div class="body"><p class="note" style="margin:0 0 10px">Posición fresca = equipo vivo; si no llega CAN, el problema es el bus de datos o la instalación, no el vehículo. Son las candidatas a intervención.</p>
+     <div class="scroll" style="max-height:360px"><table id="rev"><thead><tr><th>Patente</th><th>Empresa</th>
+      <th class="num">GPS</th><th class="num">CAN</th></tr></thead><tbody></tbody></table></div></div></div>
+  </section>
+ </div>
+</main>
+
+<script src="index.js"></script>
+</body></html>
