@@ -179,7 +179,11 @@ document.getElementById('collapseBtn').onclick=()=>setCollapsed(!document.body.c
 // ── Carga de datos en vivo (token de handoff -> /api/data) ──
 async function fetchDataset(token,name){
  try{
-  const res=await fetch('/api/data?dataset='+name,{headers:{Authorization:'Bearer '+token}});
+  // Ruta RELATIVA a propósito, no absoluta (/api/data): esta app se sirve
+  // tanto en su propio dominio (connect-flotas.vercel.app/) como detrás del
+  // rewrite /flotas/* de portalConnect (connect.grupokaufmann.com/flotas/) —
+  // una ruta absoluta pegaría contra el dominio equivocado en el segundo caso.
+  const res=await fetch('api/data?dataset='+name,{headers:{Authorization:'Bearer '+token}});
   if(!res.ok)return {ok:false,status:res.status};
   return {ok:true,data:await res.json()};
  }catch(e){return {ok:false,status:0};}
