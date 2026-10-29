@@ -25,6 +25,27 @@ function showGate(msg, showBack){
 }
 function hideGate(){ document.getElementById('gate').classList.add('hidden'); }
 
+// Nombre/avatar del usuario: vienen en el propio JWT (email, nombre si
+// portalConnect pudo leer el perfil) — no se verifica la firma acá, solo se
+// lee para mostrar; la verificación real la hace api/data.js en el backend.
+function decodeJwtPayload(token){
+ try{
+  const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  const json = decodeURIComponent(atob(base64).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  return JSON.parse(json);
+ }catch(e){ return null; }
+}
+function renderUser(token){
+ const payload = decodeJwtPayload(token);
+ if(!payload) return;
+ const email = payload.email || '';
+ const nombre = payload.nombre || (email ? email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : '');
+ if(!nombre) return;
+ const initials = nombre.split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+ document.getElementById('userpill').textContent = nombre;
+ if(initials) document.getElementById('avatar').textContent = initials;
+}
+
 let DATA = [], HEAT = [];
 let empSel='';  // '' = todas las empresas
 const es=x=>Number(x).toLocaleString('es-CL');
@@ -194,6 +215,7 @@ async function boot(){
   showGate('Esta app se abre desde Portal Connect. Volvé e ingresá por la tarjeta "Connect Flotas".', true);
   return;
  }
+ renderUser(token);
  const metricas=await fetchDataset(token,'metricas');
  if(!metricas.ok){
   const msg=metricas.status===401
