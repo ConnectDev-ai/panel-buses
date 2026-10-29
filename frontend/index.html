@@ -2,6 +2,19 @@
 <html data-theme="light" lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Connect Flotas &mdash; Panel de buses</title>
+<script>
+// Portal Connect sirve esta página detrás de /flotas (rewrite en su vercel.json),
+// pero su trailingSlash:false hace que el navegador termine en "/flotas" sin la
+// barra final — sin esto, todo recurso relativo (CSS/JS/fetch de la API) se
+// resolvería contra la raíz del dominio en vez de "/flotas/". Se fija el <base>
+// en JS, no a mano en el HTML, para que acceder directo a connect-flotas.vercel.app
+// (sin el prefijo /flotas) también siga funcionando.
+(function(){
+  var b = document.createElement('base');
+  b.href = /^\/flotas(\/|$)/.test(location.pathname) ? '/flotas/' : '/';
+  document.head.appendChild(b);
+})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
