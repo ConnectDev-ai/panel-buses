@@ -9,6 +9,14 @@
 // resolvería contra la raíz del dominio en vez de "/flotas/". Se fija el <base>
 // en JS, no a mano en el HTML, para que acceder directo a connect-flotas.vercel.app
 // (sin el prefijo /flotas) también siga funcionando.
+//
+// IMPORTANTE: este script es inline y el CSP de vercel.json NO tiene
+// 'unsafe-inline' en script-src (a propósito) — está permitido solo por su
+// hash SHA-256 ('sha256-...' en vercel.json). Si se edita UNA SOLA LETRA de
+// este bloque hay que recalcular el hash (ver comentario junto al CSP en
+// vercel.json) y redeployar los dos a la vez, o el script queda bloqueado y
+// la página vuelve a verse sin estilos (sin aviso en pantalla, solo en la
+// consola del navegador: "Refused to execute inline script...").
 (function(){
   var b = document.createElement('base');
   b.href = /^\/flotas(\/|$)/.test(location.pathname) ? '/flotas/' : '/';
