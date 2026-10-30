@@ -145,7 +145,9 @@ function renderConect(rows){
  rev.forEach(r=>{const t=document.createElement('tr');t.innerHTML='<td class="pat">'+(r.patente||'')+'</td><td>'+(r.empresa||'')+'</td><td class="num">'+pill(r.dias_sin_gps)+'</td><td class="num">'+(r.dias_sin_can==null?'<span class="pill crit">nunca</span>':pill(r.dias_sin_can))+'</td>';tb.appendChild(t);});}
 
 // ── Mapa (lazy) ──
-let map=null,posLayer=null,heatLayer=null,mapMode='pos';
+let map=null,posLayer=null,heatLayer=null,rutaLayer=null,mapMode='pos';
+let FLOTAS_TOKEN='';   // seteado en boot(), para poder pedir dataset=rutas bajo demanda
+let RUTAS_VINS=null;   // Set de vin con viajes en bus_viajes (rutas/, export manual) — lazy
 function buildLayers(){const rows=cur().filter(r=>r.lat!=null&&r.lon!=null);
  posLayer=L.layerGroup();const pts=[];
  for(const r of rows){const c=cvar(col(r.dias_sin_gps).replace('var(','').replace(')',''));
@@ -170,9 +172,72 @@ function applyMapMode(pts){
 function initMap(){if(map)return;map=L.map('mapBig').setView([-35,-71],5);
  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap',maxZoom:18}).addTo(map);}
 function rebuildMap(){if(!map)return;
+ if(mapMode==='rutas'){loadRutas();return;}
  if(posLayer)map.removeLayer(posLayer);if(heatLayer)map.removeLayer(heatLayer);
  applyMapMode(buildLayers());}
-function setMapMode(m){mapMode=m;document.querySelectorAll('#maptoggle button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));if(map)applyMapMode(null);}
+
+// ── Rutas (tabla bus_viajes, export manual — ver rutas/README.md). Overlay
+// visual de viajes recientes por unidad o por empresa, no identifica rutas
+// (decisión de producto 2026-10-19 documentada ahí). ──
+function populateRutaSel(){
+ const sel=document.getElementById('rutaVin');
+ const rows=cur().filter(r=>r.vin&&RUTAS_VINS&&RUTAS_VINS.has(r.vin))
+  .sort((a,b)=>(a.patente||'').localeCompare(b.patente||'','es'));
+ const prev=sel.value;
+ sel.innerHTML='<option value="">'+(empSel?'Todas las unidades con viajes ('+rows.length+')':'— elegí una unidad —')+'</option>'
+  +rows.map(r=>'<option value="'+r.vin+'">'+(r.patente||r.vin)+(empSel?'':' · '+(r.empresa||''))+'</option>').join('');
+ sel.value=rows.some(r=>r.vin===prev)?prev:'';
+}
+async function loadRutas(){
+ if(RUTAS_VINS===null){
+  const v=await fetchDataset(FLOTAS_TOKEN,'rutas');
+  RUTAS_VINS=new Set(v.ok?v.data:[]);
+ }
+ populateRutaSel();
+ const vinSel=document.getElementById('rutaVin').value;
+ if(rutaLayer){map.removeLayer(rutaLayer);rutaLayer=null;}
+ if(!vinSel&&!empSel){
+  document.getElementById('mapasub').textContent='Elegí una empresa (arriba) o una unidad para ver sus rutas';
+  return;
+ }
+ document.getElementById('mapasub').textContent='Cargando rutas…';
+ const r=await fetchDataset(FLOTAS_TOKEN,'rutas',vinSel?'vin='+encodeURIComponent(vinSel):'empresa='+encodeURIComponent(empSel));
+ if(!r.ok){document.getElementById('mapasub').textContent='No se pudieron cargar las rutas.';return;}
+ const trips=r.data,pts=[];
+ rutaLayer=L.layerGroup();
+ trips.forEach(t=>{
+  const latlngs=(t.polyline||[]).map(p=>[p[1],p[0]]);
+  if(latlngs.length<2)return;
+  L.polyline(latlngs,{color:'#2563EB',weight:3,opacity:.7}).bindPopup(
+   '<b>'+(t.inicio?new Date(t.inicio).toLocaleString('es-CL'):'s/f')+'</b><br>'+
+   (t.distancia_km!=null?fmt(t.distancia_km,1)+' km':'<span class="muted">&mdash;</span>')+
+   (t.duracion_h!=null?' · '+fmt(t.duracion_h,1)+' h':'')+
+   (t.vel_prom!=null?'<br>vel. prom '+fmt(t.vel_prom,0)+' km/h':'')
+  ).addTo(rutaLayer);
+  latlngs.forEach(p=>pts.push(p));
+  if(t.start_lat!=null&&t.start_lon!=null)L.circleMarker([t.start_lat,t.start_lon],{radius:4,color:cvar('--ok'),fillColor:cvar('--ok'),fillOpacity:1,weight:1}).addTo(rutaLayer);
+  if(t.end_lat!=null&&t.end_lon!=null)L.circleMarker([t.end_lat,t.end_lon],{radius:4,color:cvar('--crit'),fillColor:cvar('--crit'),fillOpacity:1,weight:1}).addTo(rutaLayer);
+ });
+ rutaLayer.addTo(map);
+ document.getElementById('mapasub').textContent=trips.length+' viaje'+(trips.length===1?'':'s')+(vinSel?' · '+vinSel:' · '+empSel);
+ if(pts.length)map.fitBounds(pts,{padding:[30,30]});
+}
+document.getElementById('rutaVin').onchange=()=>{if(mapMode==='rutas')loadRutas();};
+
+function setMapMode(m){mapMode=m;document.querySelectorAll('#maptoggle button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+ document.getElementById('rutasel').style.display=m==='rutas'?'':'none';
+ if(!map)return;
+ if(m==='rutas'){
+  if(posLayer)map.removeLayer(posLayer);if(heatLayer)map.removeLayer(heatLayer);
+  document.getElementById('maptitle').textContent='Rutas recientes';
+  document.getElementById('maplegend').style.display='none';
+  document.getElementById('mapnote').textContent='Trazado de los viajes más recientes por unidad (bus_viajes, actualización manual — ver rutas/README.md). Es un overlay visual, no identifica ni nombra rutas.';
+  loadRutas();
+ }else{
+  if(rutaLayer)map.removeLayer(rutaLayer);
+  applyMapMode(null);
+ }
+}
 document.querySelectorAll('#maptoggle button').forEach(b=>b.onclick=()=>setMapMode(b.dataset.m));
 
 // ── Re-render global al cambiar de empresa ──
@@ -198,13 +263,13 @@ try{if(localStorage.getItem('sbCollapsed')==='1')document.body.classList.add('co
 document.getElementById('collapseBtn').onclick=()=>setCollapsed(!document.body.classList.contains('collapsed'));
 
 // ── Carga de datos en vivo (token de handoff -> /api/data) ──
-async function fetchDataset(token,name){
+async function fetchDataset(token,name,extraQs){
  try{
   // Ruta RELATIVA a propósito, no absoluta (/api/data): esta app se sirve
   // tanto en su propio dominio (connect-flotas.vercel.app/) como detrás del
   // rewrite /flotas/* de portalConnect (connect.grupokaufmann.com/flotas/) —
   // una ruta absoluta pegaría contra el dominio equivocado en el segundo caso.
-  const res=await fetch('api/data?dataset='+name,{headers:{Authorization:'Bearer '+token}});
+  const res=await fetch('api/data?dataset='+name+(extraQs?'&'+extraQs:''),{headers:{Authorization:'Bearer '+token}});
   if(!res.ok)return {ok:false,status:res.status};
   return {ok:true,data:await res.json()};
  }catch(e){return {ok:false,status:0};}
@@ -216,6 +281,7 @@ async function boot(){
   return;
  }
  renderUser(token);
+ FLOTAS_TOKEN=token;
  const metricas=await fetchDataset(token,'metricas');
  if(!metricas.ok){
   const msg=metricas.status===401

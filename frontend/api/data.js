@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
   if (!DATABASE_URL) return res.status(503).json({ error: 'no configurado' });
 
   const dataset = String((req.query || {}).dataset || '').toLowerCase();
-  if (dataset !== 'metricas' && dataset !== 'heat') {
+  if (dataset !== 'metricas' && dataset !== 'heat' && dataset !== 'rutas') {
     return res.status(400).json({ error: 'dataset inválido' });
   }
 
@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
                FROM buses_metricas h CROSS JOIN f CROSS JOIN a
                LEFT JOIN buses_metricas p ON p.vin=h.vin AND p.fecha=a.antes
                WHERE h.fecha=f.hoy)
-        SELECT fecha::text AS fecha, patente, empresa, modelo,
+        SELECT fecha::text AS fecha, vin, patente, empresa, modelo,
                round(COALESCE(odo_can,odo_gps)::numeric,0) AS odometro,
                round(horas::numeric,0) AS horas_motor,
                dias_sin_gps, dias_sin_can, telemetria,
@@ -80,19 +80,64 @@ module.exports = async function handler(req, res) {
       return res.json(rows);
     }
 
-    // heat: densidad de posiciones de los últimos 90 días, redondeada a
-    // ~100 m (3 decimales) — mismo criterio que preview/gen_preview.py.
-    rows = await sql`
-      WITH f AS (SELECT max(fecha) AS hoy FROM buses_metricas)
-      SELECT round(lat::numeric, 3) AS lat, round(lon::numeric, 3) AS lon,
-             empresa, count(*)::int AS n
-      FROM buses_metricas, f
-      WHERE fecha > f.hoy - INTERVAL '90 days'
-        AND lat IS NOT NULL AND lon IS NOT NULL
-      GROUP BY 1, 2, 3
-    `;
+    if (dataset === 'heat') {
+      // heat: densidad de posiciones de los últimos 90 días, redondeada a
+      // ~100 m (3 decimales) — mismo criterio que preview/gen_preview.py.
+      rows = await sql`
+        WITH f AS (SELECT max(fecha) AS hoy FROM buses_metricas)
+        SELECT round(lat::numeric, 3) AS lat, round(lon::numeric, 3) AS lon,
+               empresa, count(*)::int AS n
+        FROM buses_metricas, f
+        WHERE fecha > f.hoy - INTERVAL '90 days'
+          AND lat IS NOT NULL AND lon IS NOT NULL
+        GROUP BY 1, 2, 3
+      `;
+      res.setHeader('Cache-Control', 'private, max-age=300');
+      return res.json(rows.map(r => [Number(r.lat), Number(r.lon), r.n, r.empresa || '—']));
+    }
+
+    // rutas: overlay visual de viajes recientes (tabla bus_viajes, export manual
+    // — ver rutas/README.md en la raíz del repo). Decisión de producto
+    // (2026-10-19): no identifica/nombra rutas, solo muestra el trazado; se
+    // consulta por vin (una unidad, hasta 40 viajes ya escritos por bus) o por
+    // empresa (varias unidades, acotado a los 3 viajes más recientes por bus
+    // para que el mapa no se sature). Sin ninguno de los dos, devuelve la
+    // lista de vin con viajes registrados, para armar el selector en el
+    // frontend cruzando contra los datos de `metricas` que ya tiene ahí.
+    const vin = String((req.query || {}).vin || '').trim();
+    const empresa = String((req.query || {}).empresa || '').trim();
+
+    if (!vin && !empresa) {
+      rows = await sql`SELECT DISTINCT vin FROM bus_viajes`;
+      res.setHeader('Cache-Control', 'private, max-age=300');
+      return res.json(rows.map(r => r.vin));
+    }
+
+    if (vin) {
+      rows = await sql`
+        SELECT trip_id, inicio, fin, distancia_km, duracion_h, vel_prom,
+               start_lat, start_lon, end_lat, end_lon, start_zone, end_zone, polyline
+        FROM bus_viajes WHERE vin = ${vin} ORDER BY inicio DESC
+      `;
+    } else {
+      rows = await sql`
+        SELECT trip_id, vin, inicio, fin, distancia_km, duracion_h, vel_prom,
+               start_lat, start_lon, end_lat, end_lon, start_zone, end_zone, polyline
+        FROM (
+          SELECT *, row_number() OVER (PARTITION BY vin ORDER BY inicio DESC) AS rn
+          FROM bus_viajes WHERE empresa = ${empresa}
+        ) x WHERE rn <= 3
+      `;
+    }
+    const numR = v => (v === null || v === undefined ? null : Number(v));
     res.setHeader('Cache-Control', 'private, max-age=300');
-    return res.json(rows.map(r => [Number(r.lat), Number(r.lon), r.n, r.empresa || '—']));
+    return res.json(rows.map(r => ({
+      ...r,
+      distancia_km: numR(r.distancia_km), duracion_h: numR(r.duracion_h), vel_prom: numR(r.vel_prom),
+      start_lat: numR(r.start_lat), start_lon: numR(r.start_lon),
+      end_lat: numR(r.end_lat), end_lon: numR(r.end_lon),
+      polyline: typeof r.polyline === 'string' ? JSON.parse(r.polyline) : r.polyline,
+    })));
   } catch (err) {
     console.error('[api/data]', err.message);
     return res.status(500).json({ error: 'error interno' });

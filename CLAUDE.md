@@ -19,16 +19,28 @@ pipeline — it writes to Neon and does not serve `frontend/` itself.
 ## `frontend/` — Connect Flotas (Vercel project, Node)
 
 Self-contained: `index.html`/`index.css`/`index.js` (the dashboard — KPIs,
-mapa con heatmap, rendimiento, unidades, conectividad) + `api/data.js` (the
-only server code, reads `buses_metricas` from Neon for
-`dataset=metricas|heat`). No login of its own and no `buses_en_sucursal`
-access here — those stay in Portal Connect's own `api/flota.js`
-(`dataset=buses`, the "Buses en Taller" page).
+mapa con heatmap/rutas, rendimiento, unidades, conectividad) + `api/data.js`
+(the only server code, reads Neon for `dataset=metricas|heat|rutas`). No
+login of its own and no `buses_en_sucursal` access here — those stay in
+Portal Connect's own `api/flota.js` (`dataset=buses`, the "Buses en Taller"
+page).
+
+`dataset=rutas` reads `bus_viajes` (see `rutas/README.md` at the repo root —
+**manual export, not on the daily cron**, geometry already decoded/simplified
+to `polyline` jsonb at write time). It's a visual overlay of recent trips, by
+`vin` (one bus) or `empresa` (capped to the 3 latest trips per bus so the map
+doesn't flood) — per the 2026-10-19 product decision, it never
+identifies/names routes. With neither param it returns the distinct `vin`
+list that have trips, which `index.js` intersects with `metricas` (now also
+selecting `vin`) to build the unit picker — avoids a second round-trip just
+to know which buses have route data.
 
 Access is a one-time SSO handoff, not a second login: Portal Connect already
 holds the real session (SAML/Supabase) and the allowlist
 (`api/_allowlist.js` there). When a user clicks the "Connect Flotas" card on
-its Inicio page, Portal Connect's `api/flotas-sso.js` checks that session +
+its Inicio page, Portal Connect's `api/flota.js` (`dataset=flotas-sso` —
+folded into the same file as `buses`/`metricas`/`pantalla`, not its own
+file, to stay under Vercel Hobby's 12-function cap) checks that session +
 allowlist and mints a short-lived JWT, then redirects to
 `https://connect.grupokaufmann.com/flotas?t=<jwt>` (rewritten by Portal
 Connect's `vercel.json` to this project). `frontend/api/data.js` only

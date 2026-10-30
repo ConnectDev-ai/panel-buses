@@ -87,9 +87,12 @@
   <!-- MAPA -->
   <section class="view" id="view-mapa">
    <div class="pghead"><h1>Mapa de flota</h1><span class="sub" id="mapasub"></span>
+    <div class="empsel" id="rutasel" style="display:none"><span data-lucide="bus"></span>
+     <select id="rutaVin"></select></div>
     <div class="seg" style="margin-left:auto" id="maptoggle">
      <button class="on" data-m="pos">Posiciones</button>
-     <button data-m="heat">Heatmap de movimiento</button></div></div>
+     <button data-m="heat">Heatmap de movimiento</button>
+     <button data-m="rutas">Rutas</button></div></div>
    <div class="card"><div class="head"><h3 id="maptitle">Última posición por unidad</h3>
      <span class="leg" id="maplegend"><span><i style="background:var(--ok)"></i>al día</span>
       <span><i style="background:var(--warn)"></i>reciente</span>
